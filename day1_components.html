@@ -1,0 +1,484 @@
+﻿<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Angular2 Components</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <p class="fragment">Angular applications are made up of components. A component is the combination of an HTML template and a component class that controls a portion of the screen.</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript ">
+import { Component } from '@angular/core';
+@Component({
+    selector: 'my-app',
+    template: `<h1>Hello {{name}}</h1>`
+})
+export class AppComponent { name = 'Angular'; }
+                        </code>
+                    </pre>
+                </section>
+                    
+                <section>
+                    <p>Showing component properties with interpolation</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript ">
+import { Component } from '@angular/core';
+@Component({
+  selector: 'my-app',
+  template: `
+    <h1>{{title}}</h1>
+    <h2>My favorite car is: {{myCar}}</h2>
+    `
+})
+export class AppComponent {
+  title = 'Cars';
+  myCar = 'Mercedes';
+}
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Initialization of variable in construtor</p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript ">
+export class AppComponent {
+  title: string;
+  myCar: string;
+  constructor() {
+    this.title = 'Cars';
+    this.myCar = 'Mercedes';
+  }
+}
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Showing an array property with *ngFor</p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript ">
+export class AppComponent {
+  title = 'Cars';
+  models = ['A180', 'B180', 'B200', 'C200', 'E220', 'S180'];
+  myFavouriteModel = this.models[4];
+}
+                        </code>
+                    </pre>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript ">
+template: `
+    <h1>{{title}}</h1>
+    <h2>My favorite Mercedes is {{myFavouriteCar}}</h2>
+    <p>List</p>
+    <ul>
+    <li *ngFor="let model of models">
+        {{ model }}
+      </li>
+    </ul> `
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Creating a class for the data</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript ">
+export class Car {
+  constructor(public id: number, public name: string) { }
+}
+                        </code>
+                    </pre>
+                    <p class="fragment">Using the <i>Car</i> class</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript ">
+cars = [
+  new Car(1, 'A180'),
+  new Car(2, 'B180'),
+  new Car(3, 'B200'),
+  new Car(4, 'C200')
+  new Car(5, 'E220');
+  new Car(6, 'S180');
+];
+myFavouriteCar= this.cars[4];
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Using the Car class in template</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript">
+template: `
+    <h2>My favorite Mercedes model is: {{myFavouriteCar.name}}</h2>
+    <p>Cars:</p>
+    <ul>
+    <li *ngFor="let car of cars">
+      {{ car.id }} - {{ car.name }}
+    </li>
+  </ul>
+`
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Conditional display with NgIf</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript">
+template: `
+    <p *ngIf="cars.length > 3">There are many Mercedes models!</p>
+`
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Conditional adding css class on element</p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript">
+template: `
+    <ul>
+        <li *ngFor="let car of cars" [ngClass]="{'highlight-css-class-name': car.name == 'E220'}">
+        {{ car.id }} - {{ car.name }}
+        </li>
+    </ul>
+`
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <h3>User Input</h3>
+                </section>
+
+                <section>
+                    <p>Binding to user input events</p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript">
+@Component({
+  selector: 'click-me',
+  template: `
+    <button (click)="onClickMe()">Show my faourite car</button>
+    {{clickMessage}}`
+})
+export class ClickMeComponent {
+  clickMessage = '';
+  onClickMe() {
+    this.clickMessage = 'My favourite car is Mercedes!';
+  }
+}
+
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Get user input from the $event object</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript">
+template: `
+    <input (keyup)="onKey($event)">
+    <p>{{values}}</p>
+`
+                        </code>
+                    </pre>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript">
+export class KeyUpComponent {
+  values = '';
+  onKey(event: any) { 
+    this.values = event.target.value;
+  }
+}
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Get user input from a template reference variable</p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript">
+@Component({
+  selector: 'my-app',
+  template: `
+                    <input #box (keyup)="0">
+                    <p>{{box.value}}</p>
+  `
+})
+export class LoopbackComponent { }
+                        </code>
+                    </pre>
+                    <img class="fragment" src="https://angular.io/resources/images/devguide/user-input/keyup-loop-back-anim.gif"/>
+                </section>
+
+                <section>
+                    <p>Key event filtering (with key.enter)</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript">
+@Component({
+  selector: 'my-app',
+  template: `
+    <input #box (keyup.enter)="onEnter(box.value)">
+    <p>{{value}}</p>
+  `
+})
+export class KeyUpComponent {
+  value = '';
+  onEnter(value: string) { this.value = value; }
+}
+
+                        </code>
+                    </pre>
+                    <img class="fragment" src="https://angular.io/resources/images/devguide/user-input/keyup3-anim.gif" />
+                </section>
+
+                <section>
+                    <h3>COMPONENT STYLES</h3>
+                </section>
+
+                <section>
+                    <p>Using Component Styles</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript">
+@Component({
+  selector: 'my-app',
+  template: `
+    <h1>Cars</h1>
+    `,
+  styles: ['h1 { font-weight: normal; color: red; }']
+})
+export class CarAppComponent {
+/* . . . */
+}
+
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Template Inline Styles</p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript">
+@Component({
+  selector: 'car-controls',
+  template: `
+    <style>
+        button {
+            background-color: white;
+            border: 1px solid black;
+        }
+    </style>
+    <h3>Cars</h3>
+    <button (click)="selectFavourite()">Select favourite</button>
+  `
+})
+
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Style URLs in Metadata</p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript">
+@Component({
+  selector: 'car-details',
+  template: `
+    <h2>{{car.id}}</h2>
+    <h2>{{car.name}}</h2>
+  `,
+  styleUrls: ['app/car-details.component.css']
+})
+export class CarDetailsComponent {
+/* . . . */
+}
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <h3>Making and Using a custom Angular 2 component</h3>
+                </section>
+
+                <section>
+                    <p>Separating the Car Detail Component</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript">
+export class Car {
+    id: number;
+    modelName: string;
+    engineType: string;
+}
+                        </code>
+                    </pre>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript">
+import { Component, Input } from '@angular/core';
+import { Car } from './car';
+@Component({
+  selector: 'my-car-detail',
+  template: `
+    <div *ngIf="car">
+        <h2>Mercedes {{car.modelName}} details!</h2>
+        <div>The id of model is {{car.id}}</div>
+        <div>Engine type: {{car.engineType}}</div>
+    </div>
+  `
+})
+export class CarDetailComponent {
+  @Input()
+  car: Car;
+}
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Refresh the AppComponent</p>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript small-font-code">
+                            import { Component } from '@angular/core';
+import { Car } from './car';
+const CARS: Car[] = [
+  { id: 1, modelName: 'A180', engineType: 'petrol' },                            
+  { id: 2, modelName: 'B180', engineType: 'diesel' },                            
+  { id: 3, modelName: 'B200', engineType: 'petrol' },                            
+  { id: 4, modelName: 'C200', engineType: 'petrol' },                            
+  { id: 5, modelName: 'E220', engineType: 'diesel' },
+  
+];
+@Component({
+  selector: 'my-app',
+  template: `
+    <h1>{{title}}</h1>
+    <ul>
+        <li *ngFor="let car of cars"
+            (click)="onSelect(car)">
+            {{car.id}} - {{car.modelName}}      
+        </li>
+    </ul>
+    <my-car-detail [car]="selectedCar"></my-car-detail>
+  `
+})
+export class AppComponent {
+  title = 'Mercedes cars';
+  cars = CARS;
+  selectedCar: Car;
+  onSelect(car: Car): void {
+    this.selectedCar = car;
+  }
+}
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <h3>LIFECYCLE HOOKS</h3>
+                </section>
+
+                <section>
+                    <p>Angular calls lifecycle hook methods on directives and components as it creates, changes, and destroys them</p>
+                    <img src="https://angular.io/resources/images/devguide/lifecycle-hooks/hooks-in-sequence.png" />
+                </section>
+
+                <section>
+                    <p>
+                        Each interface has a single hook method whose name is the interface name prefixed with ng.
+                        For example, the <i>OnInit</i> interface has a hook method named <i>ngOnInit</i> that Angular calls shortly after creating the component
+                    </p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript">
+export class CarComponent implements OnInit {
+    // implement OnInit's `ngOnInit` method
+    ngOnInit() { 
+        console.log("On init car component"); 
+    }
+}
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>
+                        The <i>OnChanges</i> interface has a hook method named <i>ngOnChanges</i>
+                    </p>
+                    <pre class="fragment">
+                    <code data-trim class="hljs javascript">
+export class CarComponent implements OnChanges {
+    ngOnChanges() { 
+        console.log("On change car component"); 
+    }
+}
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p class="fragment">Change Detection (CD)</p>
+                    <ul>
+                        <li class="fragment">CD is about updating the view whenever the underlying model changes </li>
+                        <li class="fragment">CD is implemented in the library zone.js </li>
+                        <li class="fragment">When async event happens in your browser’s app, CD starts checking components and updates the views </li>
+                        <li class="fragment">CD runs unidirectionally from the root of the component tree to each leaf </li>
+                        <li class="fragment">Each component has its own change detector that checks if the values in its template expressions (e.g. {{prodTitle}} or [prodId]="productId") has changed.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <p>CD strategies: Default vs OnPush</p>
+                    <p style="font-size: 0.7em;">changeDetection: ChangeDetectionStrategy.OnPush</p>
+                    <img style="height: 300px;" src="./img/CD_1.png" />
+                    <p style="font-size: 0.7em;">With OnPush strategy the Zone won’t check a component unless the reference of the value bound to its @Input properties change. </p>
+                </section>
+
+                <section>
+                    <p>CD strategies: Default vs OnPush</p>
+                    <img style="height: 300px;" src="./img/CD_2.png" />
+                    <p style="font-size: 0.7em;">A change in GrandChild1 will cause change detection in all components shown with blue background. </p>
+                </section>
+</div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    {src: 'plugin/markdown/marked.js'},
+                    {src: 'plugin/markdown/markdown.js'},
+                    {src: 'plugin/notes/notes.js', async: true},
+                    {src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                            hljs.initHighlightingOnLoad(); }}
+                ]
+            });
+        </script>
+    </body>
+</html>
+

@@ -1,0 +1,254 @@
+﻿<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Angular2 Components</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <h2>Setup Anugular 2 application</h2>
+                </section>
+
+                <section>
+                    <p>Setup a local development environment</p>
+                    <ol>
+                        <li>Verify that you are running node v4.x.x or higher and npm 3.x.x or higher</li>
+                        <li>Create a project folder </li>
+                        <li>Clone or download the QuickStart seed into your project folder</li>
+                        <li>Install npm packages</li>
+                        <li>Run npm start to launch the sample application</li>
+                    </ol>
+                    <pre class="fragment">
+                        <code data-trim class="hljs javascript ">
+git clone https://github.com/angular/quickstart.git quickstart
+cd quickstart
+npm install
+npm start
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>What's in the QuickStart seed?</p>
+                    <img style="height:130px; margin: 0px !important;" src="./img/QuickStartStructure.PNG"/>
+                    <pre>
+                        <code data-trim class="hljs javascript small-font-code">
+//src/app/app.component.ts
+import { Component } from '@angular/core';
+@Component({
+  selector: 'my-app',
+  template: `<h1>Hello {{name}}</h1>`
+})
+export class AppComponent { name = 'Angular'; }
+
+//src/app/app.module.ts
+import { NgModule }      from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { AppComponent }  from './app.component';
+@NgModule({
+  imports:      [ BrowserModule ],
+  declarations: [ AppComponent ],
+  bootstrap:    [ AppComponent ]
+})
+export class AppModule { }
+
+//src/main.ts
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AppModule }              from './app/app.module';
+platformBrowserDynamic().bootstrapModule(AppModule);
+                        </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>SystemJS configuration for Angular</p>
+                    <pre>
+                    <code data-trim class="hljs javascript small-font-code">
+(function (global) {
+  System.config({
+    paths: {
+      'npm:': 'node_modules/'
+    },
+    map: {
+      app: 'app',
+      '@angular/core': 'npm:@angular/core/bundles/core.umd.js',
+      '@angular/common': 'npm:@angular/common/bundles/common.umd.js',
+      '@angular/compiler': 'npm:@angular/compiler/bundles/compiler.umd.js',
+      '@angular/platform-browser': 'npm:@angular/platform-browser/bundles/platform-browser.umd.js',
+      '@angular/platform-browser-dynamic': 'npm:@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js',
+      '@angular/http': 'npm:@angular/http/bundles/http.umd.js',
+      '@angular/router': 'npm:@angular/router/bundles/router.umd.js',
+      '@angular/forms': 'npm:@angular/forms/bundles/forms.umd.js',
+      'rxjs':                      'npm:rxjs',
+      'angular-in-memory-web-api': 'npm:angular-in-memory-web-api/bundles/in-memory-web-api.umd.js'
+    },
+    packages: {
+      app: {
+        defaultExtension: 'js'
+      },
+      rxjs: {
+        defaultExtension: 'js'
+      }
+    }
+  });
+})(this);
+                    </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>SystemJS: paths serve as alias</p>
+                    <pre>
+                    <code data-trim class="hljs javascript small-font-code">
+paths: {
+    'npm:': 'node_modules/'
+},
+                    </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>SystemJS: map tells the System loader where to look for things</p>
+                    <pre>
+                    <code data-trim class="hljs javascript small-font-code">
+map: {
+      // our app is within the app folder
+      app: 'app',
+
+      // angular bundles
+      '@angular/core': 'npm:@angular/core/bundles/core.umd.js',
+      '@angular/common': 'npm:@angular/common/bundles/common.umd.js',
+      '@angular/compiler': 'npm:@angular/compiler/bundles/compiler.umd.js',
+      '@angular/platform-browser': 'npm:@angular/platform-browser/bundles/platform-browser.umd.js',
+      '@angular/platform-browser-dynamic': 'npm:@angular/platform-browser-dynamic/bundles/platform-browser-dynamic.umd.js',
+      '@angular/http': 'npm:@angular/http/bundles/http.umd.js',
+      '@angular/router': 'npm:@angular/router/bundles/router.umd.js',
+      '@angular/forms': 'npm:@angular/forms/bundles/forms.umd.js',
+
+      // other libraries
+      'rxjs':                      'npm:rxjs',
+      'angular-in-memory-web-api': 'npm:angular-in-memory-web-api/bundles/in-memory-web-api.umd.js'
+    },
+                    </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>SystemJS: packages tells the System loader how to load when no filename and/or no extension</p>
+                    <pre>
+                    <code data-trim class="hljs javascript small-font-code">
+   packages: {
+      app: {
+        defaultExtension: 'js'
+      },
+      rxjs: {
+        defaultExtension: 'js'
+      }
+}
+                    </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>TypeScript Congiguration File</p>
+                    <h5>TypeScript configuration file (tsconfig.json) is added in the project to guide the compiler as it generates JavaScript files</h5>
+                    <pre>
+                    <code data-trim class="hljs javascript small-font-code">
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "emitDecoratorMetadata": true
+  }
+}
+
+                    </code>
+                    </pre>
+                    <p>
+                        <ul>
+                            <li>Transpile the code into the ES5 syntax</li>
+                            <li>Use CommonJS module format</li>
+                            <li>Emit design-type metadata for decorated declarations in source</li>
+                        </ul>
+                    </p>
+                </section>
+
+                <section>
+                    <h2>CLI QUICKSTART</h2>
+                    <h4>Use the CLI tool to quickly build Angular applications</h4>
+                </section>
+
+                <section>
+                    <p>Step 1. Set up the Development Environment</p>
+                    <pre>
+                    <code data-trim class="hljs javascript">
+npm install -g @angular/cli
+                    </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Step 2. Create a new project</p>
+                    <pre>
+                    <code data-trim class="hljs javascript">
+ng new my-app
+                    </code>
+                    </pre>
+                </section>
+
+                <section>
+                    <p>Step 3: Serve the application</p>
+                    <pre>
+                    <code data-trim class="hljs javascript">
+cd my-app
+ng serve
+                    </code>
+                    </pre>
+                    <img src="https://angular.io/resources/images/devguide/cli-quickstart/app-works.png" />
+                </section>
+
+                    
+</div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    {src: 'plugin/markdown/marked.js'},
+                    {src: 'plugin/markdown/markdown.js'},
+                    {src: 'plugin/notes/notes.js', async: true},
+                    {src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                            hljs.initHighlightingOnLoad(); }}
+                ]
+            });
+        </script>
+    </body>
+</html>
+

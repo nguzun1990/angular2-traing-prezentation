@@ -1,0 +1,941 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>NgModules</title>
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+        <link rel="stylesheet" href="css/custom.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName('head')[0].appendChild(link);
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                    <section>
+                        <h2>NgModules</h2>
+                        <p class="fragment">A mechanism to group components, directives, pipes and services that are related</p>
+                        <p class="fragment">Similar to ES6 Modules ( <i>declarations, imports, exports</i> )</p>
+                            <div class="fragment">
+                                <pre>
+                                    <code class="hljs javascript">
+import { NgModule } from '@angular/core';
+...
+
+@NgModule({ //decorator
+  imports: [BrowserModule],
+  declarations: [AppComponent],
+  exports: [...],
+  providers: [...],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+                                    </code>
+                                </pre>
+                            </div>
+                    </section>
+                    <section>
+                        <h4>Imports</h4>
+                        <ul>
+                            <li class="fragment">Expects an array of modules - only NgModules</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h4>Declarations</h4>
+                        <ul>
+                            <li class="fragment">Components / Directives / Pipes belonging to the NgModule - only Declarables </li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h4>Exports</h4>
+                        <ul>
+                            <li class="fragment">Components visible for other modules </li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h4>Providers</h4>
+                        <ul>
+                            <li class="fragment">Services at the application level that any component can use </li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h4>Bootstrap</h4>
+                        <ul>
+                            <li class="fragment">The component(s) to bootstrap </li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>AppModule / Application root module</h2>
+                        <ul>
+                            <li class="fragment">Contains the component for bootstrap - launch the app</li>
+                            <li class="fragment">Dynamic bootstraping - JIT Compiler</li>
+                            <li class="fragment">Static bootstraping - AOT Compiler</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Feature modules</h2>
+                        <ul>
+                            <li class="fragment">Same properties and metadata as the Root Module</li>
+                            <li class="fragment">Share the same execution context, same injector as Root Module - services available to all</li>
+                            <li class="fragment">Extends the app</li>
+                        <ul>
+                    </section>
+
+                    <section>
+                        <h4>Loading</h4>
+                        <ul>
+                            <li class="fragment">Eagerly</li>
+                            <li class="fragment">Lazy - by the Router
+                                <pre>
+                                    <code class="hljs javascript">
+export const routes: Routes = [
+...
+{ path: 'lazy-loaded-module', loadChildren: 'app/lazy/lazy-module.module#LazyModule' },
+...
+];
+                                    </code>
+                                </pre>
+                            </li>
+                        <ul>
+                    </section>
+
+                    <section>
+                        <h4>Shared Modules</h4>
+                        <ul>
+                            <li class="fragment">exists to make commonly used components, directives, and pipes available for use in many other modules</li>
+                            <li class="fragment">Don't specify providers here!</li>
+                        <ul>
+                    </section>
+
+                    <section>
+                        <h4>Core Module</h4>
+                        <ul>
+                            <li class="fragment">Specify the Core items that will be used in all modules</li>
+                        <ul>
+                    </section>
+
+                    <section>
+                        <h4>Routing module</h4>
+                        <ul>
+                            <li class="fragment">Separates routing / application concerns</li>
+                            <li class="fragment">Provides a module to replace or remove when testing the application</li>
+                            <li class="fragment">Provides a well-known location for routing service providers including guards and resolvers</li>
+                            <li class="fragment">Does not declare components</li>
+                        <ul>
+                    </section>
+
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Dependency Injection</h2>
+                        <ul>
+                            <li><i>DI</i> -> software design pattern used for resolving dependencies</li>
+                            <li><i>Dependency</i> -> an object that can be used (a service)</li>
+                            <li><i>Injection</i> -> passing of a dependency to a dependent object (a client)</li>
+                        </ul>
+                        <p class="fragment">A class receives its dependencies from external sources rather than creating them itself.</p>
+                    </section>
+                    <section>
+                        <h4>Provider</h4>
+                        <p>describes how an object for a certain token is created</p>
+                        <ul>
+                            <li>Class Provider (<i>useClass</i>)</li>
+                            <li>FactoryProvider (<i>useFactory</i>)</li>
+                            <li>Aliased Class Provider (<i>useExisting</i>)</li>
+                            <li>Value Provider (<i>useValue</i>)</li>
+                        </ul>                                
+                    </section>
+
+                    <section>
+                            <pre>
+                                <code class="hljs javascript">let heroServiceFactory = (logger: Logger, userService: UserService) => {
+  return new HeroService(logger, userService.user.isAuthorized);
+};
+
+export let heroServiceProvider =
+  { provide: HeroService,
+    useFactory: heroServiceFactory,
+    deps: [Logger, UserService] //provider tokens - resolved by injector
+  };
+                                </code>
+                            </pre>
+                    </section>
+
+                    <section>
+                        <h4>@Injectable()</h4>
+                        <p>marks a class as available to an injector</p>
+                        <pre>
+                            <code class="hljs javascript">import { Injectable } from '@angular/core';
+
+@Injectable() //let the injector know that this is injectable
+export class SomeService {
+  
+}</code>
+                        </pre>  
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>The Providers can be registered in components
+                                <pre>
+                                    <code class="hljs javascript">import { SomeService } from 'somewhere';
+@Component({
+...
+providers: [SomeService],
+...</code>
+                                </pre>   
+                        <small>available only in that component and its children</small>
+                            </li>
+                            <li>or in modules
+                                <pre>
+                                    <code class="hljs javascript">import { SomeService } from 'somewhere';
+@NgModule({
+...
+providers: [SomeService],
+...</code>
+                                </pre>   
+                        <small>available application wide</small>
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4>Injection of a dependency</h4>
+                                <pre>
+                                    <code class="hljs javascript">import { SomeService } from 'somewhere';
+...
+constructor(protected service: SomeService) { 
+... 
+}</code>
+                                </pre>   
+                    </section>
+                    
+                </section>
+
+
+                <section>
+                    <section>
+                        <h2>Routing</h2>
+                        <p class="fragment">The Angular Router enables navigation from one view to the next</p>
+                    </section>
+
+                    <section>
+                        <h4>Routing</h4>
+                        <pre>
+                            <code class="hljs javascript">
+const appRoutes: Routes = [
+  { path: 'url', component: SomeComponent },
+  { path: 'collection/:id', component: AnotherComponent },
+  {
+    path: 'collection',
+    component: CollectionComponent,
+    data: { title: 'Some title' }
+  },
+  { path: '',
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
+  },
+  { path: '**', component: PageNotFoundComponent }
+];
+
+@NgModule({
+  imports: [
+    RouterModule.forRoot(appRoutes)
+  ]
+})
+export class AppModule { }
+                                    </code>
+                                </pre>
+                    </section>
+                    <section>
+                        <h4>Router outlet</h4>
+                        <pre>
+                            <code class="hljs javascript">
+<router-outlet></router-outlet>
+<!-- Routed views go here --> 
+                            </code>
+                        </pre>                       
+                    </section>
+
+                    <section>
+                        <h4>Router links</h4>
+                        <pre>
+                            <code class="hljs html">
+<a routerLink="/url-to-navigate" routerLinkActive="active">Simple Url</a>
+<a [routerLink]="['url', user.id]" routerLinkActive="active">User edit</a>
+<!-- link parameters array //-->
+                            </code>
+                        </pre>                       
+                    </section>
+
+                    <section>
+                        <h4>ActivatedRoute</h4>
+                        <ul>
+                            <li class="fragment">Makes available the active route and its params</li>
+                        </ul>
+                        <pre class="fragment">
+                            <code class="hljs javascript">
+import { Router, ActivatedRoute, Params } from '@angular/router';
+...
+constructor(
+  private route: ActivatedRoute,
+  private router: Router
+) {}
+...
+ngOnInit() {
+  this.route.params //<-- provided as Oservable
+    // (+) converts string 'id' to a number
+    .switchMap((params: Params) => this.service.fetchSomeData(+params['id']))
+    .subscribe(data => this.data = data);
+}
+
+                            </code>
+                        </pre> 
+                    </section>
+
+                    <section>
+                        <h4>Snapshot</h4>
+                        <ul>
+                            <li class="fragment">Makes available only the initial value of the params of the route</li>
+                        </ul>
+                        <pre class="fragment">
+                            <code class="hljs javascript">
+...
+ngOnInit() {
+  // (+) converts string 'id' to a number
+  let id = +this.route.snapshot.params['id'];//only the initial value
+
+  this.service.getHero(id)
+    .then((hero: Hero) => this.hero = hero);
+}
+
+                            </code>
+                        </pre> 
+                    </section>
+
+                    <section>
+                        <h4>Relative navigation</h4>
+                        <pre>
+                            <code class="hljs javascript">
+this.router.navigate(['../'], { relativeTo: this.route });
+                            </code>
+                        </pre> 
+                    </section>
+                    
+
+                    <section>
+                        <h4>Named outlets &amp; Secondary routes</h4>
+                        <pre>
+                            <code class="hljs javascript">
+//route configuration
+{
+  path: 'named-outlet-url',
+  component: AComponent,
+  outlet: 'namedoutlet'
+},
+
+//template markup
+<router-outlet></router-outlet>
+<router-outlet name="namedoutlet"></router-outlet>
+
+//template navigation
+<a [routerLink]="[{ outlets: { namedoutlet: ['named-outlet-url'] } }]">Named Outlet</a>
+
+...
+//clearing named outlets routes
+this.router.navigate([{ outlets: { popup: null }}]);
+                            </code>
+                        </pre> 
+                    </section>
+
+                    <section>
+                        <h4>Guards</h4>
+                        <p>A Guard's return value control the user navigation:</p>
+                        <ul>
+                            <li>true -> navigation continues</li>
+                            <li>false -> navigation stops</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4>Supported Guards</h4>
+                        <ul>
+                            <li>CanActivate</li>
+                            <li>CanActivateChild</li>
+                            <li>CanDeactivate</li>
+                            <li>Resolve</li>
+                            <li>CanLoad</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4>Resolvers / pre-fetching component data</h4>
+                       <pre>
+                            <code class="hljs javascript">
+@Injectable()
+export class DataResolver implements Resolve&laquo;SomeModel&raquo; {
+  constructor(private cs: DataService, private router: Router) {}
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise&laquo;SomeModel&raquo; {
+    let id = route.params['id'];
+    return this.cs.getData(id).then(data => {
+      if (data) {
+        return data;
+      } else { // id not found
+        this.router.navigate(['/another-url']);
+        return null;
+      }
+    });
+  }
+}
+                            </code>
+                        </pre> 
+                    </section>
+
+                    <section>
+                        <h4>Asynchronous routing</h4>
+                        <ul>
+                            <li class="fragment">Lazy loading route configuration</li>
+                            <li class="fragment">Preloading - Custom preloading strategies:
+                       <pre>
+                            <code class="hljs javascript">
+{
+  path: 'url-to-load',
+  loadChildren: 'app/module-name/module-name.module#ModuleNameModule',
+  data: { preload: true }
+},
+                            </code>
+                        </pre> 
+                    </section>
+                    <section>
+
+                       <pre>
+                            <code class="hljs javascript">
+export class SelectivePreloadingStrategy implements PreloadingStrategy {
+  preloadedModules: string[] = [];
+
+  preload(route: Route, load: () => Observablee&laquo;any&raquo;): Observablee&laquo;any&raquo; {
+    if (route.data && route.data['preload']) {
+      this.preloadedModules.push(route.path);
+      return load();
+    } else {
+      return Observable.of(null);
+    }
+  }
+}
+                            </code>
+                        </pre> 
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Forms</h2>
+                        <p>mainstay of business application</p>
+                        <ul>
+                            <li><i>two-way data binding</i></li>
+                            <li><i>change tracking</i></li>
+                            <li><i>validation</i></li>
+                            <li><i>error handling</i></li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h4>Template driven forms</h4>
+                        <p>
+                        <code class="hljs javascript"><pre>
+import { FormsModule } from '@angular/forms';</pre></code>
+                        </p>
+                        <ul>
+                            <li>use this when you have static simple validation rules</li>
+                            <li>the control model is implicit in the template.</li>
+                            <li>add HTML validation attributes to the elements</li>
+                            <li>Angular exposes the state of controls </li>
+                        </ul>
+                    </section>
+                    <section>
+                        <p>
+                       <pre>
+                            <code class="hljs javascript">
+<label for="name">Name</label>
+
+<input type="text" id="name" class="form-control"
+       required minlength="4" maxlength="24"
+       name="name" [(ngModel)]="hero.name"
+       #name="ngModel" >
+
+<div *ngIf="name.errors && (name.dirty || name.touched)"
+     class="alert alert-danger">
+    <div [hidden]="!name.errors.required">
+      Name is required
+    </div>
+    <div [hidden]="!name.errors.minlength">
+      Name must be at least 4 characters long.
+    </div>
+    <div [hidden]="!name.errors.maxlength">
+      Name cannot be more than 24 characters long.
+    </div>
+</div>
+                            </code>
+                        </pre> 
+                        </p>
+                    </section>
+                    
+                    <section>
+                        <h4>ngModel</h4>
+                        <ul>
+                            <li>two-way data binding</li>
+                            <li>user touched the control.</li>
+                            <li>value changed</li>
+                            <li>value became invalid </li>
+                            <li>updates the css with classes reflecting the state </li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <table><tbody><tr><th>State</th><th>Class if true</th><th>Class if false</th></tr><tr><td>The control has been visited.</td><td><code>ng-touched</code></td><td><code>ng-untouched</code></td></tr><tr><td>The control's value has changed.</td><td><code>ng-dirty</code></td><td><code>ng-pristine</code></td></tr><tr><td>The control's value is valid.</td><td><code>ng-valid</code></td><td><code>ng-invalid</code></td></tr></tbody></table>
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>add reference variable to "spy" the input -> #spyName</li>
+                            <li>submit with ngSubmit()
+                       <pre>
+                            <code class="hljs javascript">
+<form (ngSubmit)="onSubmit()" #heroForm="ngForm"></form>
+                            </code>
+                        </pre></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Reactive/model driven forms</h2>
+                        <p>
+                        <code class="hljs javascript"><pre>
+import { ReactiveFormsModule } from '@angular/forms';</pre></code>
+                        </p>
+                        <ul>
+                            <li>does not use data binding to move data into and out of the form controls</li>
+                            <li>the component class is responsible for defining and managing the form control model</li>
+                            <li>create a tree of Angular form control objects</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h4>Create reactive forms component</h4>
+                        <p>
+                        <code class="hljs javascript"><pre>
+import { FormControl } from '@angular/forms';
+...
+export class SomeComponent {
+  name = new FormControl(initVal, syncValidators[], asyncValidators[]);
+}</pre></code>
+                        </p>
+                        <h4>Add it to the form</h4>
+                        <p>
+                        <code class="hljs javascript"><pre>
+<label class="center-block">Name:
+  <input class="form-control" [formControl]="name">
+</label>
+</pre></code>
+                        </p>
+                    
+                    </section>
+                    <section>
+                        <h4>Create a form group</h4>
+                        <p>
+                        <code class="hljs javascript"><pre>
+ theForm = new FormGroup ({
+    name: new FormControl()
+  });
+}</pre></code>
+                        </p>
+                        <h4>Add it to the template</h4>
+                        <p>
+                        <code class="hljs javascript"><pre>
+<form [formGroup]="theForm" novalidate>
+  <div class="form-group">
+    <label class="center-block">Name:
+      <input class="form-control" formControlName="name">
+    </label>
+  </div>
+</form>
+</pre></code>
+                        </p>
+                    
+                    </section>
+
+                    <section>
+                        <h4>FormBuilder</h4>
+                        <p>
+                        <code class="hljs javascript"><pre>
+import { FormBuilder, FormGroup } from '@angular/forms';
+</pre></code>
+                        </p>
+                        <h4>How to use form builder</h4>
+                        <p>
+                        <code class="hljs javascript"><pre>
+export class DetailComponent3 {
+  theForm: FormGroup; // <--- theForm is of type FormGroup
+
+  constructor(private fb: FormBuilder) { // <--- inject FormBuilder
+    this.createForm();
+  }
+
+  createForm() {
+    this.theForm = this.fb.group({
+      name: '', // <--- the FormControl called "name"
+    });
+  }
+}
+
+</pre></code>
+                        </p>
+                    <p>FormBuilder.group is a factory method that creates a FormGroup</p>
+                    </section>
+
+                  <section>
+                    <p>Inspecting the status of a form</p>
+                        <p>
+                        <code class="hljs html"><pre><p>Form value: {{ theForm.value | json }}</p>
+Form status: {{ theForm.status | json }}
+</pre></code>
+                        </p>
+                    <p>Nested form groups
+                        <code class="hljs javascript"><pre>createForm() {
+    this.heroForm = this.fb.group({ // <-- the parent FormGroup
+      name: ['', Validators.required ],
+      address: this.fb.group({ // <-- the child FormGroup
+        street: '',
+        city: '',
+        state: '',
+        zip: ''
+      }),
+      power: '',
+      sidekick: ''
+    });</pre></code></p>
+                    </section>
+<section>
+    <p>                        <p>
+                        <code class="hljs javascript"><pre>&nbsp;<div formGroupName="address" class="well well-lg">
+  <div class="form-group">
+    <label class="center-block">Street:
+      <input class="form-control" formControlName="street">
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">City:
+      <input class="form-control" formControlName="city">
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">State:
+      <select class="form-control" formControlName="state">
+        <option *ngFor="let state of states" [value]="state">{{state}}</option>
+      </select>
+    </label>
+  </div>
+  <div class="form-group">
+    <label class="center-block">Zip Code:
+      <input class="form-control" formControlName="zip">
+    </label>
+  </div>
+</div>
+
+</pre></code>
+                        </p>
+                    
+                    </section>
+
+<section>
+    <table width="100%" style="font-size:28px"><colgroup><col width="10%"><col width="90%"></colgroup><tbody><tr><th>Property</th><th>Description</th></tr><tr><td><code>myControl.value</code></td><td><p>the value of a <code>FormControl</code>.</p>
+</td></tr><tr><td><code>myControl.status</code></td><td><p>the validity of a <code>FormControl</code>. Possible values: <code>VALID</code>, 
+ <code>INVALID</code>, <code>PENDING</code>, or <code>DISABLED</code>.</p>
+</td></tr><tr><td><code>myControl.pristine</code></td><td><p><code>true</code> if the user has <em>not</em> changed the value in the UI.
+Its opposite is <code>myControl.dirty</code>.</p>
+</td></tr><tr><td><code>myControl.untouched</code></td><td><p><code>true</code> if the control user has not yet entered the HTML control
+ and triggered its blur event. Its opposite is <code>myControl.touched</code>.</p>
+</td></tr></tbody></table>
+</section>
+
+<section>
+    <h4>setValue</h4>
+    <p>
+<code class="hljs javascript"><pre>
+this.myForm.setValue({
+    name:    this.model.name,
+    address: this.model.addresses[0] || new Address()
+});
+
+</pre></code>
+    </p>
+    <h4>patchValue</h4>
+    <p>
+<code class="hljs javascript"><pre>
+this.myForm.patchValue({
+    name:    this.model.name
+});
+
+</pre></code>
+    </p>    
+</section>
+            </section>
+
+
+                <section>
+                    <section>
+                        <h2>HttpModule</h2>
+                        <ul>
+                            <li class="fragment">necessary for making HTTP calls</li>
+                            <li class="fragment">not an Angular2 core module</li>
+                            <li class="fragment">exists in a separate module: '@angular/http'</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <ul>
+                            <li>Import the HttpModule
+                                <pre>
+                                    <code class="hljs javascript">
+import { HttpModule, Http } from '@angular/http' 
+                                    </code>
+                                </pre> 
+                            </li>
+                            <li class="fragment">add it to the `imports` array
+                                <pre>
+                                    <code class="hljs javascript">
+@NgModule({
+  imports: [
+    ...
+    HttpModule,
+                                    </code>
+                                </pre> 
+                            </li>
+                            <li class="fragment">Inject the Http service in the constructor of your service
+                                <pre>
+                                    <code class="hljs javascript">
+constructor(private http: Http) {}
+                                    </code>
+                                </pre> 
+                            </li>
+                        </ul>
+                    </section>
+
+                    <!--<section>
+                        <ul>
+                            <li>each Http service method returns an Observable of HTTP Response objects.</li>
+                        </ul>
+                    </section>-->
+
+                    <section>
+                        <h4>Getting data from the server</h4>
+                        <pre>
+                            <code class="hljs javascript">
+this.http.get(someUrl); //returns a Observable&laquo;Response&raquo;
+                            </code>
+                        </pre>
+                        <div class="fragment">
+                        <h4>Send the data to the server</h4>
+                        <pre>
+                            <code class="hljs javascript">
+import { Headers, RequestOptions } from '@angular/http';
+...
+let headers = new Headers({ 'Content-Type': 'application/json' });
+let options = new RequestOptions({ headers: headers });
+
+return this.http.post(someUrl, { name: value }, options)
+            .map(...)
+            .catch(...);
+                            </code>
+                        </pre> 
+                        </div> 
+                    </section>
+
+                    <section>
+                        <ul>
+                            <li>each Http service method returns an Observable of HTTP Response objects.</li>
+                            <li class="fragment">Fallback to promises:
+                                <pre>
+                                    <code class="hljs javascript">
+import 'rxjs/add/operator/toPromise';
+...
+this.http.get(someUrl).toPromise(success, fail)
+                                    </code>
+                                </pre>
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+
+
+                <section>
+                    <section>
+                        <h2>Observables</h2>
+                        <p class="fragment">Stream of events you can process with array like operators</p>
+                        <p class="fragment">Streams: series of values in time</p>
+                    </section>
+            <!--<section>
+                <h3>RxJS</h3>
+                <img src="img/reactivex.png" alt="rxjs" class="borderless" width="256" >
+            </section>-->
+                    <!--<section>
+                        
+                        <h2>RxJS in Angular</h2>
+                        <p class="fragment">implements the asynchronous Observable pattern</p>
+                    </section>-->
+
+                    <section>
+                        <ul>
+                             <li>Import the RxJS library:
+                                <pre>
+                                    <code class="hljs javascript">
+    import { Observable } from 'rxjs/Observable';
+                                    </code>
+                                </pre> 
+                            </li>
+                            <li class="fragment">Enable the RxJS operators:
+                                <pre>
+                                    <code class="hljs javascript">
+    import { Observable } from 'rxjs/Observable';
+    import 'rxjs/add/operator/catch';
+    import 'rxjs/add/operator/map';
+                                    </code>
+                                </pre> 
+                            </li>
+                            <li class="fragment">Process data:
+                                <pre>
+                                    <code class="hljs javascript">
+this.http.get(someUrl)
+    .map(data => data.json)
+    .catch(err => handleTheErr)
+                                    </code>
+                                </pre> 
+                            </li>
+                        </ul>
+                    </section>
+            <!--<section>
+                <h3>A lot of operators !</h3>
+                <div style="float: left; width: 33%; font-size: 75%" class="fragment">
+                    <ul>
+                        <li>create</li>
+                        <li>range</li>
+                        <li>using</li>
+                        <li>from</li>
+                        <li>of</li>
+                        <li>toPromise</li>
+                        <li>toMap</li>
+                        <li>toSet</li>
+                        <li>toArray</li>
+                        <li>amb</li>
+                        <li>combineLatest</li>
+                        <li>concat</li>
+                        <li>startWith</li>
+                        <li>merge</li>
+                        <li>repeat</li>
+                    </ul>
+                </div>
+                <div style="float: left; width: 33%; font-size: 75%" class="fragment">
+                    <ul>
+                        <li>withLatestFrom</li>
+                        <li>zip</li>
+                        <li>publish</li>
+                        <li>replay</li>
+                        <li>aggregate</li>
+                        <li>average</li>
+                        <li>count</li>
+                        <li>max</li>
+                        <li>min</li>
+                        <li>reduce</li>
+                        <li>sum</li>
+                        <li>debounce</li>
+                        <li>interval</li>
+                        <li>filter</li>
+                        <li>map</li>
+                    </ul>
+                </div>
+                <div style="float: left; width: 33%; font-size: 75%" class="fragment">
+                    <ul>
+                        <li>elementAtOrDefault</li>
+                        <li>flatMap</li>
+                        <li>findIndex</li>
+                        <li>first</li>
+                        <li>pluck</li>
+                        <li>select</li>
+                        <li>single</li>
+                        <li>take</li>
+                        <li>takeLast</li>
+                        <li>where</li>
+                        <li>buffer</li>
+                        <li>groupBy</li>
+                        <li>join</li>
+                        <li>windowd</li>
+                        <li>do</li>
+                    </ul>
+                </div>
+            </section>
+            <section>
+                <h3>Any documentation ?</h3>
+                <p>Yes, and it's very fun !</p>
+                <a href="http://rxmarbles.com/#map" target="_blank"><img src="img/marble.map.png" alt="map"></a>
+            </section>-->
+                    <section>
+                        <ul>
+                             <li>Create streams:
+                                <pre>
+                                    <code class="hljs javascript">import { Subject } from 'rxjs/Subject';
+...
+private searchTermStream = new Subject&laquo;string&raquo;();
+search(term: string) { this.searchTermStream.next(term); }</code>
+                                </pre> 
+                            </li>
+                            <li class="fragment">Listen to streams:
+                                <pre>
+                                    <code class="hljs javascript">this.items = this.searchTermStream
+  .debounceTime(300) //waits
+  .distinctUntilChanged() //ensure distinct
+  .switchMap((term: string) => this.service.search(term));</code>
+                                </pre> 
+                            </li>
+                        </ul>
+
+                    </section>
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                history: true,
+
+                // More info https://github.com/hakimel/reveal.js#dependencies
+                dependencies: [
+                    {src: 'plugin/markdown/marked.js'},
+                    {src: 'plugin/markdown/markdown.js'},
+                    {src: 'plugin/notes/notes.js', async: true},
+                    {src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                            hljs.initHighlightingOnLoad(); }}
+                ]
+            });
+        </script>
+    </body>
+</html>

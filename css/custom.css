@@ -1,0 +1,58 @@
+.reveal section .borderless {
+  background: none;
+  border: none;
+  box-shadow: none; }
+
+.reveal section .split-left {
+  float: left;
+  width: 50%; }
+
+.reveal section .split-right {
+  float: right;
+  width: 50%; }
+
+.muted {
+  color: #999999;
+}
+
+p.left {
+  text-align: left;
+}
+
+.reveal section img.plain {
+  border: 0;
+  box-shadow: none; }
+
+/*h2 {
+  text-align: left;
+}
+
+p {
+  text-align: left;
+}*/
+.reveal pre {
+    white-space: normal;
+    line-height: inherit;
+}
+
+.left-column {
+    float:left;
+    width: 50%;
+}
+
+.right-column {
+    float:right;
+    width: 50%;
+}
+
+code.javascript {
+    white-space: pre-wrap;
+}
+
+code.small-font-code {
+    font-size: 15px;
+}
+
+.reveal pre code {
+    max-height: 500px;
+}
