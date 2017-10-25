@@ -48,7 +48,7 @@
 				<section>
                     <p class="fragment">
 						 Big Picture of a Component
-						<img src="https://angular.io/resources/images/devguide/architecture/overview2.png"/>
+						<img src="img/overview2.png"/>
 					</p>
                 </section>
                     
@@ -483,7 +483,7 @@ console.log("Last name: " + p.config.lastName);
 interface IPayable {
 	increasePay(percent: number): void
 }
-class Emplyee implements IPayable {
+class Employee implements IPayable {
 	increasePay(percent: number) {
 		//increase salary
 	}
@@ -495,7 +495,7 @@ class Contractor implements IPayable {
 }
 
 var workers: Array< IPayable > = [];
-workers[0] = new Emplyee();
+workers[0] = new Employee();
 workers[1] = new Contractor();
 workers.forEach(worker => worker.increasePay(30));
                                 </code>
@@ -505,13 +505,13 @@ workers.forEach(worker => worker.increasePay(30));
                             <p>JavaScript</p>
                             <pre>
                                 <code data-trim class="hljs javascript small-font-code">
-var Emplyee = (function () {
-    function Emplyee() {
+var Employee = (function () {
+    function Employee() {
     }
-    Emplyee.prototype.increasePay = function (percent) {
+    Employee.prototype.increasePay = function (percent) {
         //increase salary
     };
-    return Emplyee;
+    return Employee;
 }());
 var Contractor = (function () {
     function Contractor() {
@@ -522,7 +522,7 @@ var Contractor = (function () {
     return Contractor;
 }());
 var workers = [];
-workers[0] = new Emplyee();
+workers[0] = new Employee();
 workers[1] = new Contractor();
 workers.forEach(function (worker) { return worker.increasePay(30); });
                                 </code>
