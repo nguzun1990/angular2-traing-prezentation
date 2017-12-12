@@ -21,6 +21,12 @@
             link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
             document.getElementsByTagName('head')[0].appendChild(link);
         </script>
+
+        <style>
+            .reveal pre {
+                width: 100%;
+            }
+        </style>
     </head>
     <body>
         <div class="reveal">
@@ -52,6 +58,7 @@ export class AppModule { }
                         <h4>Imports</h4>
                         <ul>
                             <li class="fragment">Expects an array of modules - only NgModules</li>
+                            <li class="fragment">NgModules don't inherit access to the declaration of other NgModule / must import what it needs</li>
                         </ul>
                     </section>
                     <section>
@@ -63,13 +70,17 @@ export class AppModule { }
                     <section>
                         <h4>Exports</h4>
                         <ul>
+                            <li class="fragment">All declarables are private by default</li>
                             <li class="fragment">Components visible for other modules </li>
+                            <li class="fragment">Can Re-Export imported modules (eg: BrowserModule, RoutingModules)</li>
                         </ul>
                     </section>
                     <section>
                         <h4>Providers</h4>
                         <ul>
                             <li class="fragment">Services at the application level that any component can use </li>
+                            <li class="fragment">When there are multiple providers for the same injection token, the last registration wins. </li>
+                            <li class="fragment">root-scoped / module-scoped - <i>Component providers always supersede NgModule providers</i></li>
                         </ul>
                     </section>
                     <section>
@@ -78,6 +89,12 @@ export class AppModule { }
                             <li class="fragment">The component(s) to bootstrap </li>
                         </ul>
                     </section>
+                    <section>
+                        <h4>entryComponents</h4>
+                        <ul>
+                            <li class="fragment">Components that cannot be reached by compiler </li>
+                        </ul>
+                    </section>                    
 
                     <section>
                         <h2>AppModule / Application root module</h2>
@@ -94,6 +111,7 @@ export class AppModule { }
                             <li class="fragment">Same properties and metadata as the Root Module</li>
                             <li class="fragment">Share the same execution context, same injector as Root Module - services available to all</li>
                             <li class="fragment">Extends the app</li>
+                            <li class="fragment">Can expose or hide its implementations from other modules</li>
                         <ul>
                     </section>
 
@@ -102,11 +120,17 @@ export class AppModule { }
                         <ul>
                             <li class="fragment">Eagerly</li>
                             <li class="fragment">Lazy - by the Router
+                                <ul>
+                                    <li>Not loaded until the browser navigates to its components</li>
+                                </ul>
                                 <pre>
                                     <code class="hljs javascript">
 export const routes: Routes = [
 ...
-{ path: 'lazy-loaded-module', loadChildren: 'app/lazy/lazy-module.module#LazyModule' },
+{ 
+    path: 'lazy-loaded-module', 
+    loadChildren: 'app/lazy/lazy-module.module#LazyModule' 
+},
 ...
 ];
                                     </code>
@@ -120,13 +144,15 @@ export const routes: Routes = [
                         <ul>
                             <li class="fragment">exists to make commonly used components, directives, and pipes available for use in many other modules</li>
                             <li class="fragment">Don't specify providers here!</li>
+                            <li class="fragment">Can export modules without using their functionalities</li>
                         <ul>
                     </section>
 
                     <section>
                         <h4>Core Module</h4>
                         <ul>
-                            <li class="fragment">Specify the Core items that will be used in all modules</li>
+                            <li class="fragment">Specify the Core items that will be used in all modules (eg: a UserService)</li>
+                            <li class="fragment">Imported once when the app starts and never imported anywhere else</li>
                         <ul>
                     </section>
 
@@ -137,24 +163,73 @@ export const routes: Routes = [
                             <li class="fragment">Provides a module to replace or remove when testing the application</li>
                             <li class="fragment">Provides a well-known location for routing service providers including guards and resolvers</li>
                             <li class="fragment">Does not declare components</li>
+                            <li class="fragment">Imports the RouterModule, configures it and Re-exports it</li>
                         <ul>
                     </section>
+                    <section>
+                            <pre><code class="javascript">
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+...
+const routes: Routes = [
+    { path: '', component: ListComponent },
+    { path: ':id', component: DetailComponent},
+    { path: ':id/edit', component: EditComponent}
+];
 
+@NgModule({
+    imports: [ RouterModule.forChild(routes)],
+    exports: [ RouterModule ]
+})
+export class CarsRoutingModule {}    
+...
+                            </code></pre>
+        
+                    </section>
+                    <section>
+                            <pre><code class="javascript">
+...
+import { CarsRoutingModule } from './cars.routing';
+...
+@NgModule({
+    imports: [CarsRoutingModule, SharedModule],
+    declarations: [DetailComponent, EditComponent],
+    exports: [CarMenuComponent],
+    providers: [CarsService]
+  })
+  export class CarsModule {} 
+...
+                            </code></pre>
+        
+                    </section>
                 </section>
 
                 <section>
                     <section>
                         <h2>Dependency Injection</h2>
                         <ul>
-                            <li><i>DI</i> -> software design pattern used for resolving dependencies</li>
-                            <li><i>Dependency</i> -> an object that can be used (a service)</li>
-                            <li><i>Injection</i> -> passing of a dependency to a dependent object (a client)</li>
+                            <li><i>DI</i> - software design pattern used for resolving dependencies</li>
+                            <li><i>Dependency</i> - an object that can be used (a service)</li>
+                            <li><i>Injection</i> - passing of a dependency to a dependent object (a client)</li>    
+                            <li><i>Angular Injector</i> - responsible for creating service instances and injecting them into classes</li>
                         </ul>
                         <p class="fragment">A class receives its dependencies from external sources rather than creating them itself.</p>
                     </section>
                     <section>
                         <h4>Provider</h4>
-                        <p>describes how an object for a certain token is created</p>
+                        <ul>
+                            <li>tell the injector how to create the service</li>
+                            <li>must be registered with an injector</li>
+                        </ul>
+                        <pre><code class="hljs javascript">
+providers: [
+    UserService,
+    { provide: APP_CONFIG, useValue: HERO_DI_CONFIG }
+],    
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h4>Provider types</h4>
                         <ul>
                             <li>Class Provider (<i>useClass</i>)</li>
                             <li>FactoryProvider (<i>useFactory</i>)</li>
@@ -180,15 +255,19 @@ export let heroServiceProvider =
 
                     <section>
                         <h4>@Injectable()</h4>
-                        <p>marks a class as available to an injector</p>
-                        <pre>
+                        <ul>
+                            <li>marks a class as available to an injector</li>
+                            <li>the standard decorator for service classes</li>
+                        </ul>
+                        <p></p>
+                        <!--<pre>
                             <code class="hljs javascript">import { Injectable } from '@angular/core';
 
 @Injectable() //let the injector know that this is injectable
 export class SomeService {
   
 }</code>
-                        </pre>  
+                        </pre>//-->  
                     </section>
 
                     <section>
@@ -430,7 +509,7 @@ export class DataResolver implements Resolve&laquo;SomeModel&raquo; {
 export class SelectivePreloadingStrategy implements PreloadingStrategy {
   preloadedModules: string[] = [];
 
-  preload(route: Route, load: () => Observablee&laquo;any&raquo;): Observablee&laquo;any&raquo; {
+  preload(route: Route, load: () => Observable&laquo;any&raquo;): Observable&laquo;any&raquo; {
     if (route.data && route.data['preload']) {
       this.preloadedModules.push(route.path);
       return load();
