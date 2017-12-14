@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-        <title>NgModules</title>
+        <title>Day 2 - NgModules / DI / Routing / Observables / Forms</title>
 
         <link rel="stylesheet" href="css/reveal.css">
         <link rel="stylesheet" href="css/theme/black.css">
@@ -336,7 +336,10 @@ const appRoutes: Routes = [
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(appRoutes)
+    RouterModule.forRoot(
+        appRoutes,
+        { enableTracing: true } // <-- debugging purposes only
+    )
   ]
 })
 export class AppModule { }
@@ -355,8 +358,12 @@ export class AppModule { }
 
                     <section>
                         <h4>Router links</h4>
+                        <ul>
+                            <li>routerLink</li>
+                            <li>routerLinkActive</li>
+                        </ul>
                         <pre>
-                            <code class="hljs html">
+                            <code class="hljs xml">
 <a routerLink="/url-to-navigate" routerLinkActive="active">Simple Url</a>
 <a [routerLink]="['url', user.id]" routerLinkActive="active">User edit</a>
 <!-- link parameters array //-->
@@ -367,9 +374,9 @@ export class AppModule { }
                     <section>
                         <h4>ActivatedRoute</h4>
                         <ul>
-                            <li class="fragment">Makes available the active route and its params</li>
+                            <li>route path / parameters of the current route</li>
                         </ul>
-                        <pre class="fragment">
+                        <pre>
                             <code class="hljs javascript">
 import { Router, ActivatedRoute, Params } from '@angular/router';
 ...
@@ -379,15 +386,23 @@ constructor(
 ) {}
 ...
 ngOnInit() {
-  this.route.params //<-- provided as Oservable
+  this.route.paramMap //<-- provided as Oservable
     // (+) converts string 'id' to a number
-    .switchMap((params: Params) => this.service.fetchSomeData(+params['id']))
+    .switchMap((params: ParamMap) => this.service.fetchSomeData(+params['id']))
     .subscribe(data => this.data = data);
 }
 
                             </code>
                         </pre> 
                     </section>
+
+                    <section>
+                            <h4>Router Events</h4>
+                            <ul>
+                                <li>emitten during each navigation</li>
+                                <li>NavigationStart, RoutesRecognized, RoutesRecognized, RouteConfigLoadEnd, NavigationEnd, NavigationCancel, NavigationError</li>
+                            </ul>
+                        </section>
 
                     <section>
                         <h4>Snapshot</h4>
@@ -399,7 +414,7 @@ ngOnInit() {
 ...
 ngOnInit() {
   // (+) converts string 'id' to a number
-  let id = +this.route.snapshot.params['id'];//only the initial value
+  let id = +this.route.snapshot.paramMap.get('id');//only the initial value
 
   this.service.getHero(id)
     .then((hero: Hero) => this.hero = hero);
@@ -410,36 +425,66 @@ ngOnInit() {
                     </section>
 
                     <section>
-                        <h4>Relative navigation</h4>
-                        <pre>
-                            <code class="hljs javascript">
-this.router.navigate(['../'], { relativeTo: this.route });
-                            </code>
-                        </pre> 
-                    </section>
+                            <h4>Child Routes</h4>
+                            <pre>
+                                <code class="hljs javascript">
+const routes: Route[] = [{
+    path: 'cars',
+    component: CarsHome,
+    children: [{
+        path: '',
+        canActivateChild: [AuthGuard],
+        children: [
+            {
+                path: ':id',
+                component: DetailComponent
+            },
+            {
+                path: ':id/edit',
+                component: EditComponent
+            }
+        ]
+    }]
+}];
+                                </code>
+                            </pre> 
+                            <ul>
+                                <li>The router displays the DetailComponent in the router-outlet of the CarsHome</li>
+                            </ul>
+                        </section>                    
                     
-
+                        <section>
+                                <h4>Relative navigation</h4>
+                                <ul>
+                                    <li>The router supports directory-like syntax in a link parameters list</li>
+                                </ul>
+                                <pre>
+                                    <code class="hljs javascript">
+        this.router.navigate(['../'], { relativeTo: this.route });
+                                    </code>
+                                </pre> 
+                            </section>
                     <section>
                         <h4>Named outlets &amp; Secondary routes</h4>
                         <pre>
                             <code class="hljs javascript">
 //route configuration
 {
-  path: 'named-outlet-url',
-  component: AComponent,
-  outlet: 'namedoutlet'
+  path: 'chat-url',
+  component: ChatComponent,
+  outlet: 'chat'
 },
 
 //template markup
 <router-outlet></router-outlet>
-<router-outlet name="namedoutlet"></router-outlet>
+<router-outlet name="chat"></router-outlet>
 
 //template navigation
-<a [routerLink]="[{ outlets: { namedoutlet: ['named-outlet-url'] } }]">Named Outlet</a>
+<a [routerLink]="[{ outlets: { chat: ['chat-url'] } }]">Chat Outlet</a>
 
 ...
 //clearing named outlets routes
-this.router.navigate([{ outlets: { popup: null }}]);
+this.router.navigate([{ outlets: { chat: null }}]);
                             </code>
                         </pre> 
                     </section>
@@ -463,6 +508,45 @@ this.router.navigate([{ outlets: { popup: null }}]);
                             <li>CanLoad</li>
                         </ul>
                     </section>
+
+                    <section>
+                            <h4>CanActivate</h4>
+                            <pre>
+                                <code class="hljs javascript">
+import { Injectable }       from '@angular/core';
+import {
+    CanActivate, Router,
+    ActivatedRouteSnapshot,
+    RouterStateSnapshot,
+    CanActivateChild,
+    CanLoad
+}                           from '@angular/router';
+import { AuthService }      from './auth.service';
+
+@Injectable()
+export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
+    constructor(private authService: AuthService, private router: Router) {
+
+    }
+
+    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+        let url: string = state.url;
+        return this.checkLogin(url);
+    }
+
+    canActivateChild(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+        return this.canActivate(route, state);
+    }
+
+    canLoad(route: Route): boolean {
+        let url = `/${route.path}`;
+      
+        return this.checkLogin(url);
+      }
+}
+                                </code>
+                            </pre> 
+                        </section>
 
                     <section>
                         <h4>Resolvers / pre-fetching component data</h4>
