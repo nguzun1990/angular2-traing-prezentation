@@ -1,2 +1,2 @@
-# angular2-traing-prezentation
-Angular 2 prezentation
+# angular2-traing-presentation
+Angular 2 presentation
